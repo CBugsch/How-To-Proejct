@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Blackjack How-To Using API</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="justified-nav.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- Set the page to the width of the device and set the zoon level -->
+    <meta name="viewport" content="width = device-width, initial-scale = 1">
+    <title>Bootstrap Tutorial</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+
+</head>
+
+
+
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Blackjack How-To</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="home.html">Home</a></li>
+            <li class="active"><a href="Intro.html">Introduction</a></li>
+            <li><a href="UI.html">Creating A UI</a></li>
+            <li><a href="jsFunctions.html">JS Functions</a></li>
+            <li><a href="Combine.html">Combining It Together</a></li>
+            <li><a href="Demo.html">Example Demo</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+
+    <p  class="text-center" style="padding-top: 50px">
+    <h3><a href="https://deckofcardsapi.com/">Deck of Cards API</a></h3><br>
+    The deck of cards API allows us to request information that simulates the following:
+    <ul>
+        <li>Shuffle a new deck of cards</li>
+        <li>Draw one or more cards from the deck</li>
+        <li>Reshuffle a deck of cards in use</li>
+        <li>Open a brand new deck of cards</li>
+        <li>Use a partial deck</li>
+        <li>Add cards to a pile</li>
+        <li>Draw cards from a pile</li>
+    </ul>
+    Although for this guide, we will only focus on shuffling a new deck, drawing cards, and reshuffling that deck.<br><br>
+
+    The <a href="https://www.deckofcardsapi.com">deckofcards API</a> does a great job showing what the response looks like,
+    so if you're not sure what properties are being returned, check the site or add a call <code>document.log(response)</code> after
+    the response has been parsed to see the values.
+
+    Now, if you've used an API before you know that most use an API key that is specific to each user. The deck of cards API
+    is similar in that it uses a deck id. This id is specific for that deck so the first thing we need to do is make a <code>GET</code>
+    request and save the deck id.<br>
+
+
+    <pre><code>
+    var deckID = ""      //define a variable for our returned deck id
+
+    function newDeck(){
+            var req = new XMLHttpRequest();
+            req.open('GET', "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1, true);
+            req.addEventListener('load', function () {
+                if (req.status >= 200 && req.status < 400) {
+                    var response = JSON.parse(req.responseText);
+                    deckID = response.deck_id.value;    //save the deck id value to our variable for future use
+                }
+                else {
+                    console.log("Error in network request: " + req.statusText);
+                }
+            });
+            req.send(null);
+            event.preventDefault();
+    };</code></pre><br>
+
+    First we define a variable named deckID that we can store and later use for all other functions. We then define and
+    call a function called newDeck. This function will return a new deck id with the cards pre-shuffled. We then save the property
+    value of deck_id to our own variable.<br><br>
+
+    Now we can make the other two <code>GET</code> calls like so:<br>
+
+    <pre><code>
+    function reshuffle(){
+        var req = new XMLHttpRequest();
+        req.open('GET', "https://deckofcardsapi.com/api/deck/" + <b>deckID</b> + "/shuffle/", true);
+        req.addEventListener('load', function () {
+            if (req.status >= 200 && req.status < 400) {
+                console.log("Deck reshuffled")
+            }
+            else {
+                console.log("Error in network request: " + req.statusText);
+            }
+        });
+        req.send(null);
+        event.preventDefault();
+    }
+    </code></pre>
+
+    The <code>reshuffle</code> function is virtually the same as the new deck function except we use our new deckID
+    and simply log a message to the console so we know it worked.<br><br>
+    <pre><code>
+    function hit(){
+        var req = new XMLHttpRequest();
+        req.open('GET', "https://deckofcardsapi.com/api/deck/" + <b>deckID</b> + "/draw/?count=1", true);
+
+        req.addEventListener('load', function () {
+        if (req.status >= 200 && req.status < 400) {
+            var response = JSON.parse(req.responseText);
+            if(response.success){
+                var newCard = document.createElement("img")
+                newCard.setAttribute("src", response.cards[0].image);
+                newCard.setAttribute("style", "width:104px; height:142px;");
+                document.getElementById('playerHand').appendChild(newCard);
+
+                addCard(response.cards[0].value, pDeck);
+
+            }else{
+                reshuffle();
+                hit();
+            }
+        }
+    });
+    req.send(null);
+    event.preventDefault();
+}
+    </code></pre><br>
+
+    The <code>hit</code> function contains a lot more code using the returned properties,
+    but we will talk more about exactly what it is doing in the JS Functions section. For now, it's just
+    important that you understand how to make the <code>GET</code> requests.
+
+
+
+
+
+    </p>
+    <ul class="pager">
+        <li class="previous"><a href="Home.html">Previous</a></li>
+        <li class="next"><a href="UI.html">Next</a></li>
+    </ul>
+    <!-- Site footer -->
+    <footer class="footer">
+        <p>&copy; 2017 Christopher Bugsch</p>
+    </footer>
+
+</div> <!-- /container -->
+
+
+
+</body>
+</html>

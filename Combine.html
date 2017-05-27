@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Blackjack How-To Using API</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="justified-nav.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- Set the page to the width of the device and set the zoon level -->
+    <meta name="viewport" content="width = device-width, initial-scale = 1">
+    <title>Bootstrap Tutorial</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+
+</head>
+
+
+
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Blackjack How-To</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="Intro.html">Introduction</a></li>
+            <li><a href="UI.html">Creating A UI</a></li>
+            <li><a href="jsFunctions.html">JS Functions</a></li>
+            <li class="active"><a href="Combine.html">Combining It Together</a></li>
+            <li><a href="Demo.html">Example Demo</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container" style="padding-top: 75px">
+At this point we are almost done. We have set up a static html page and written a whole bunch of code to run the game.
+    The last thing to do is connect it all together.<br><br>
+
+    We'll start by making sure we link our js file to the html page. We do this by adding a line of code like this:<br>
+<code>
+       &ltscript src="blackJack.js">&lt/script&gt;
+    </code>
+     just above the <code>&lt/body&gt;</code> line
+    in our html file.<br><br>
+
+    Now that our js file is linked, let's make sure the buttons actually do some thing. Let's head back into our js file and add the
+    follwing code just below our variables list.
+    <pre><code>
+document.getElementById('newHand').addEventListener('click', newHand );
+document.getElementById('hit').addEventListener('click', hit );
+document.getElementById('stay').addEventListener('click', stay );
+
+    </code></pre>
+    What this is doing is getting the elements from the html page (in this case its the buttons) and adding
+     and event listener <code>addEventListener</code>, that will call the function to the right when the action <code>click</code>
+    happens.<br>
+    Now when ever a user clicks one of the buttons, the <code>newHand</code>, <code>hit</code>, or <code>stay</code> functions will be called.
+    <br><br>
+    The only thing left to do is add the last function mentioned on the <a href="jsFunctions.html"> jsFunctions</a> page to display the score.
+
+    <pre><code>
+function addScore(who){
+    who.win++;
+    round++;
+    document.getElementById('pWins').textContent = pDeck.win;
+    document.getElementById('dWins').textContent = dDeck.win;
+    document.getElementById('rounds').textContent = round;
+}
+    </code></pre>
+    All this code does is take as a parameter, the object that won (<code>pDeck</code> or <code>dDeck</code>) and adds 1 to their <code>'win'</code> property. It then increases
+    the <code>rounds</code> variable by 1 and displays both scores and the number of rounds to the page.
+
+    <br><br>
+
+    If you're ready to see what all of this looks like, click next to see a demo of the final product!
+
+    <ul class="pager">
+        <li class="previous"><a href="jsFunctions.html">Previous</a></li>
+        <li class="next"><a href="Demo.html">Next</a></li>
+    </ul>
+    <!-- Site footer -->
+    <footer class="footer">
+        <p>&copy; 2017 Christopher Bugsch</p>
+    </footer>
+
+</div> <!-- /container -->
+
+
+
+</body>
+</html>

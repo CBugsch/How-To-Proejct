@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Blackjack How-To Using API</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="justified-nav.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- Set the page to the width of the device and set the zoon level -->
+    <meta name="viewport" content="width = device-width, initial-scale = 1">
+    <title>Bootstrap Tutorial</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+
+</head>
+<meta charset="UTF-8">
+<title>Title</title>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Blackjack How-To</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="Intro.html">Introduction</a></li>
+            <li><a href="UI.html">Creating A UI</a></li>
+            <li class="active"><a href="jsFunctions.html">JS Functions</a></li>
+            <li><a href="Combine.html">Combining It Together</a></li>
+            <li><a href="Demo.html">Example Demo</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="container" style="padding-top: 75px">
+<p>
+    So now we've made a few <code>GET</code> requests, but we haven't talked to much about what were going to do
+    with that information yet. This section will cover how to process the information we receive back as well as all the
+    other functions we will be using for our game.
+    This section will cover the most code, so I've tried to split it up in order of how we use it.
+</p><br>
+<p>
+    Let's begin with the variables we will be using throughout the program.
+    <pre><code>
+    var deckID = "btshybyjei25"; //this is the deck_id I used while building the program.
+
+    var round = 0;
+
+    var pDeck = {
+        'name': "pDeck",
+        'value':0,
+        'cardValues': [],
+        'win: 0,
+        'stay': false
+    }
+
+    var dDeck = {
+        'name': "dDeck",
+        'value':0,
+        'cardValues': [],
+        'win': 0
+    }
+
+    var dCard1 = {
+        'image':null,
+        'value':null
+    }
+    </code></pre>
+    We already know about our <code>deckID</code> from the previous section. But now we introduce four more variables.<br>
+    The <code>round</code> variable is as straight forward as it gets. It will keep track of how many rounds have been played.<br><br>
+    Then we have <code>pDeck</code> and <code>dDeck</code> which will represent the player and dealer decks. Each of these have a <code>name</code>,
+    a <code>value</code> that holds the numeric value of the hand, <code>cardValues</code> array that holds the string value of the cards, and
+    <code>win</code> that keeps track of the player and dealer wins. The <code>pDeck</code> also has a property <code>stay</code>, so the game knows
+    when the player has finished hitting.<br>
+    Lastly we have an object <code>dCard1</code>. The purpose of this object is to hold the value of the dealer's first card so we can hide it
+    from the player, and then show it after the player has stayed.
+</p>
+
+    <p>
+        Now lets talk about the functions we will use:
+        <ul>
+    <li><code>newHand</code></li>
+    <li><code>hit</code></li>
+    <li><code>stay</code></li>
+    <li><code>dealerHit</code></li>
+    <li><code>addCard</code></li>
+    <li><code>contains</code></li>
+    <li><code>checkWin</code></li>
+    <li><code>addScore</code></li>
+</ul>
+    </p>
+    <p>
+        <pre><code>
+function newHand(){
+    console.log(document.getElementById('playerHand').childElementCount);
+    while(document.getElementById('playerHand').childElementCount >5){
+        var deck = document.getElementById('playerHand');
+        deck.removeChild(deck.lastElementChild);
+    }
+     while(document.getElementById('dealerHand').childElementCount >5){
+        deck = document.getElementById('dealerHand');
+        deck.removeChild(deck.lastElementChild);
+    }
+
+    pDeck.value = 0;
+    dDeck.value = 0;
+    playerStay = false;
+    pDeck.cardvalues = [];
+    dDeck.cardvalues = [];
+    document.getElementById("pDeck").textContent = pDeck.value;
+    document.getElementById("dDeck").textContent = dDeck.value;
+
+    var req = new XMLHttpRequest();
+    req.open('GET', "https://deckofcardsapi.com/api/deck/" + deckID + "/draw/?count=4", true);
+
+    req.addEventListener('load', function () {
+        if (req.status >= 200 && req.status < 400) {
+            var response = JSON.parse(req.responseText);
+            console.log(response);
+            if(response.success){
+                document.getElementById('pCard1').setAttribute("src", response.cards[0].image);
+                dCard1.image = response.cards[1].image;
+                dCard1.value = response.cards[1].value;
+                document.getElementById('dCard1').setAttribute("src", "http://res.freestockphotos.biz/pictures/15/15541-illustration-of-a-card-deck-back-pv.png");
+                document.getElementById('pCard2').setAttribute("src", response.cards[2].image);
+                document.getElementById('dCard2').setAttribute("src", response.cards[3].image);
+
+            setTimeout(function () {
+                addCard(response.cards[0].value, pDeck);
+                addCard(response.cards[2].value, pDeck);
+                addCard(response.cards[3].value, dDeck);
+            }, 100);
+
+        }else{reshuffle();
+            newHand();}}
+    });
+    req.send(null);
+    event.preventDefault();
+}
+</code></pre>
+    Ok, so this is a decent amount of code if you're just starting out so let's begin at the top. The first two <code>while</code>
+    loops will go through and remove any elements from the player and dealer's hand past the second card.<br>
+    The next chunk of code simply resets are values back to the default values.<br>
+    Now if you remember from the intro, our <code>GET</code> request is going to be the same as it was for our <code>hit</code> function,
+    but now we changed count=4, so it will draw four cards to begin the hand.<br>
+    The <code>if(response.success)</code> condition will check if
+    the deck had enough remaining cards to draw four. If it didn't, it will call <code>reshuffle</code> and then re-call <code>newHand</code>.
+    <br> If we were success ful in drawing four cards, those card values will be in an array property that we can acess with an index. So
+    first we set the image of the first card. Then as mentioned before we will save the image and value of the second card drawn to the
+    <code>dCard1</code> object so it is hidden from the player. Instead, we then display a stock photo of a back of a card in place when
+    the dealer's first card is. We then continue on displaying the third and fourth cards in the appropriate hands.<br>
+    Lastly, we call our <code>addCard</code> function for the three cards displayed. This is enclosed in a <code>setTimeout</code> function
+    to give the site enough time to load the pictures of the cards first.
+    </p><br><br>
+
+    <p>
+        Now we have the hands delt, and the player can choose to hit or stay, so lets take a look at those functions.
+        <pre><code>
+function hit(){
+    var req = new XMLHttpRequest();
+    req.open('GET', "https://deckofcardsapi.com/api/deck/" + deckID + "/draw/?count=1", true);
+    req.addEventListener('load', function () {
+        if (req.status >= 200 && req.status < 400) {
+            var response = JSON.parse(req.responseText);
+            if(response.success){
+                var newCard = document.createElement("img")
+                newCard.setAttribute("src", response.cards[0].image);
+                newCard.setAttribute("style", "width:104px; height:142px;");
+                document.getElementById('playerHand').appendChild(newCard);
+
+                addCard(response.cards[0].value, pDeck);
+
+        }else{reshuffle();
+                hit();}}
+    });
+
+    req.send(null);
+    event.preventDefault();
+}
+</code></pre>
+    We showed this earlier, but now let's talk about what it is doing. First, it sends the request to draw one card. We again will check
+    if we need to reshuffle. The next part is where we introduce DOM. If you recall from the html UI, we only have two designated spots
+    for each players hand. So now we create a new image element, set the attributes to the values of the card just drawn, and append the new card
+    to the player's hand. Once the card is displayed, we once again call <code>addCard</code>
+    </p><br>
+
+    <p>
+        If the player is happy with their hand and they haven't busted, they can decide to "stay".
+        <pre><code>
+function stay() {
+    pDeck.stay = true;
+    document.getElementById('dCard1').setAttribute("src", dCard1.image);
+    addCard(dCard1.value, dDeck);
+    if(dDeck.value <16){
+        dealerHit();}
+    else{
+        setTimeout(checkWin,200);
+    }
+}
+</code></pre>
+    The first thing this function does is set the <code>pDeck.stay</code> property to true. It then recalls the dealer's
+    hidden first card info and displays the image and adds the card to the dealer's deck. After the card's value has been
+    added to the dealer's hand, it checks if the total hand's value is below 16.<br>
+    According to most rules, the dealer must continue to hit until they reach 16 or bust. <br>
+    And so if they value is below 16, we will call <code>dealerHit</code>, but if it is 16 or above, we will call <code>checkWin</code>.
+    Once again, this function is wrapped in a <code>setTimeout</code> function to give the site enough time to load the image of the dealer's card.
+    </p><br><br>
+<p>
+    Now we could have added conditions and more code to our <code>hit</code> function to handle dealer hits as well, but I thought it might
+    be easier to process what is happening by breaking it into two separate functions.
+    <pre><code>
+ function dealerHit(){
+    var req = new XMLHttpRequest();
+    req.open('GET', "https://deckofcardsapi.com/api/deck/" + deckID + "/draw/?count=1", true);
+    req.addEventListener('load', function () {
+    if (req.status >= 200 && req.status < 400) {
+        var response = JSON.parse(req.responseText);
+        if(response.success){
+            var newCard = document.createElement("img")
+            newCard.setAttribute("src", response.cards[0].image);
+            newCard.setAttribute("style", "width:104px; height:142px;");
+            document.getElementById('dealerHand').appendChild(newCard);
+
+            setTimeout(function () {
+                addCard(response.cards[0].value, dDeck);
+                if(dDeck.value < 16){
+                    dealerHit();
+                    return;
+                }
+                else{
+                    if(dDeck.value > 21){
+                        alert("Dealer Bust! You Win!");
+                        addScore(pDeck);
+                        newHand();
+                    }
+                    else{
+                        checkWin();
+
+                    }
+                }
+
+            }, 100);
+
+        }else{reshuffle();
+                dealerHit();}}
+    });
+    req.send(null);
+    event.preventDefault();
+}
+    </code></pre>
+    We begin by calling the exact same thing as <code>hit</code>. What changes is after we've added the card to the dealer's hand.
+    We check if the total hand is below 16 and immediately call <code>dealerHit</code> again if it is. Next we check if the dealer "bust".
+    If that happened, we alert the player, call <code>addScore</code>, and go right into a <code>newHand</code>. If the dealer did not bust,
+    we then call our <code>checkWin</code> function.<br><br>
+</p>
+    <p>
+        We are now done with our AJAX requests and the rest of code will mostly be simple JS functions. We've called <code>addCard</code> a
+        few times so now lets take a look at what that function is doing.
+        <pre><code>
+function addCard(cardValue, who){
+    if(cardValue.length > 3){
+        who.value += 10;
+    }
+    else if(cardValue === "ACE"){
+        if(who.value >= 11){
+            who.value += 1;
+        }
+        else{
+            who.value +=11;
+            who.cardValues.push('ACE');
+        }
+    }
+    else{
+        who.value += parseInt(obj);
+    }
+    if(contains(who.cardValues,'ACE')){
+        if(who.value > 21){
+            who.cardValues.pop();
+            who.value -=10;}
+    }
+    document.getElementById(who.name).textContent = who.value;
+    if(pDeck.value > 21){
+        setTimeout(alert("BUST!"), 500);
+        addScore(dDeck);
+        newHand();
+    }
+    else if (pDeck.value == 21){
+        setTimeout(alert("Blackjack! You Win!"), 500);
+        addScore(pDeck);
+        newHand();
+    }
+}
+</code></pre>
+    To begin let's look at what we are passing into the function. We can see we get a card value, and a object denoted by who.
+    If you remember from the documentation on the API you'll recall a card's value is a string. Numbers are represented with "1", "2", "3' ect.
+    and then "JACK", "QUEEN", "KING", and "ACE".<br>
+    So first, we check if the cardValue's length is longer than three. If it is, we know it's either a jack, queen or king, and we can add
+    10 to the <code>who.value</code> property value. <br>
+    Then we check if it's value is 'ACE'. This is where it gets tricky because an ace can be either 11 or 1. So we have to check the current deck's
+    value and see if it's above 10. If it is, then we only add 1. If it 10 or below however we add 11, and then push the value 'ACE' onto the deck's
+    array of card values.<br>
+    The reason we do this is, say we get delt an Ace and a 2. Now you have a total of 13 which isn't great. So you decide to hit and get a 10.
+    The ace's 11 value has already been added, so when we go to add the 10, we need to check the array to see if an ACE has been drawn and played as 11.
+    If it has, we change the value of the Ace to 1 by subtracting 10 from the total and pop the ACE from the array so it can't be decreased again.
+    <br><br>
+    If you've understood all that, then the last part is easy. If the card wasn't a face card or an Ace, we change the string value to an
+    integer and add it to the total.<br>
+    Then we check if the player has bust or gotten 21, alert the user, call the appropriate <code>addScore</code> function and call <code>newHand</code>
+
+    </p><br>
+    <p>
+        The next function simply checks the <code>cardValues</code> array for "ACE" and returns true or false.
+        <pre><code>
+function contains(arr, findValue){
+    var i=arr.length;
+    while(i--){
+        if(arr[i] === findValue)return true;
+    }return false;
+}
+</code></pre>
+    We pass in the array and the value we want to find. <code>cardValues</code> and <code>'ACE'</code>. Create a variable i = to the number of
+    elements in the array, then check each element from back to front for the specific value.
+    </p><br><br>
+
+    <p>
+        The last function we'll cover here is the <code>checkWin</code> function.
+        <pre><code>
+function checkWin(){
+    if(pDeck.stay){
+        if(pDeck.value > dDeck.value){
+            alert("You Win!");
+            addScore(pDeck);
+            newHand();
+        }
+        else{
+            alert("You Lose!");
+            addScore(dDeck);
+            newHand();
+        }
+    }
+}
+</code></pre>
+    This function is as simple as it gets. If checks if the player has stayed, then compares the player's hand to the dealer's hand. If
+    we wanted to add betting to this game, we could add a condition called "push" when the hands are equal, but to keep it simple, we've
+    made ties go to the dealer.
+    </p><br>
+
+    This covers almost everything and the next section will have just a few more things to tie the whole game together.
+
+
+<ul class="pager">
+    <li class="previous"><a href="UI.html">Previous</a></li>
+    <li class="next"><a href="Combine.html">Next</a></li>
+</ul>
+<!-- Site footer -->
+<footer class="footer">
+    <p>&copy; 2017 Christopher Bugsch</p>
+</footer>
+
+</div> <!-- /container -->
+
+
+
+</body>
+</html>
